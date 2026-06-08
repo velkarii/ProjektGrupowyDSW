@@ -74,7 +74,6 @@ DerivedDataCache/*
 
 # Ignore selected Unreal content folders
 Content/LevelPrototyping/
-Content/ThirdPerson/
 Content/Characters/
 Content/__ExternalActors__/
 Content/__ExternalObjects__/

@@ -47,8 +47,6 @@ SourceArt/**/*.png
 SourceArt/**/*.tga
 
 # Binary Files
-Binaries/*
-Plugins/**/Binaries/*
 
 # Builds
 Build/*
@@ -73,3 +71,11 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Ignore selected Unreal content folders
+Content/LevelPrototyping/
+Content/ThirdPerson/
+Content/Characters/
+Content/__ExternalActors__/
+Content/__ExternalObjects__/
+Content/Input

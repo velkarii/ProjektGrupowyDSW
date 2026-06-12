@@ -17,14 +17,26 @@ EBTNodeResult::Type UAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	AEnemy* Enemy = Cast<AEnemy>(ControlledPawn);
 	UAnimInstance* AnimInstance = Enemy->GetMesh()->GetAnimInstance();
 
-	if (!AnimInstance || !Enemy || !Enemy->AttackMontage)
+	if (!AnimInstance || !Enemy)
+		return EBTNodeResult::Failed;
+
+	UAnimMontage* MontageToPlay = AttackMontage ? AttackMontage : Enemy->AttackMontage;
+
+	if (!MontageToPlay)
 		return EBTNodeResult::Failed;
 	
-	Enemy->PlayAttackMontage();
+	if (AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+	}
+	else
+	{
+		Enemy->PlayAttackMontage();
+	}
 
 	FOnMontageEnded MontageEndedDelegate;
 	MontageEndedDelegate.BindUObject(this, &UAttack::OnAttackMontageEnded, &OwnerComp);
-	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, Enemy->AttackMontage);
+	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
 	return EBTNodeResult::InProgress;
 }

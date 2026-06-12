@@ -5,6 +5,11 @@
 #include "Player/PlayerCharacter.h"
 #include "Enemy/Enemy.h"
 
+UWeaponAttack::UWeaponAttack()
+{
+	HitboxRadius = 12.f; // Domyślna wartość
+}
+
 void UWeaponAttack::SetupWeapons()
 {
 	Owner->GetAttachedActors(Weapons);
@@ -44,7 +49,7 @@ void UWeaponAttack::PerformSweep()
 
 			float HalfHeight = Diff.Size() / 2;
 			FQuat Rotation = FRotationMatrix::MakeFromZ(Diff).ToQuat();
-			FCollisionShape CollisionShape = FCollisionShape::MakeCapsule(12.f, HalfHeight);
+			FCollisionShape CollisionShape = FCollisionShape::MakeCapsule(HitboxRadius, HalfHeight);
 
 			FCollisionQueryParams QueryParams;
 			QueryParams.AddIgnoredActor(Owner);
@@ -64,15 +69,25 @@ void UWeaponAttack::PerformSweep()
 				if (Character)
 				{
 					HitActors->Add(HitActor);
+					// Character->TakeDamage(...) - jeśli gracz ma system obrażeń
 				}
 				else if (Enemy)
 				{
 					HitActors->Add(HitActor);
+					
+					// Pobierz obrażenia od właściciela ataku, jeśli jest nim Enemy
+					float Damage = 10.f;
+					if (AEnemy* Attacker = Cast<AEnemy>(Owner))
+					{
+						Damage = Attacker->AttackDamage;
+					}
+					
+					Enemy->TakeDamageAmount(Damage);
 				}
 				
 			}
 
-			DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, 12.f, Rotation, FColor::Red, false, 0); // debug draw
+			DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, HitboxRadius, Rotation, FColor::Red, false, 0); // debug draw
 		}
 	}
 }

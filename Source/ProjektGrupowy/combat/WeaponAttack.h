@@ -15,9 +15,15 @@ class PROJEKTGRUPOWY_API UWeaponAttack : public UAttackType
 	GENERATED_BODY()
 	
 public:
+	UWeaponAttack();
 	void SetupWeapons();
 	void PerformSweep();
 	void ExecuteAttack() override;
+
+protected:
+	/** Promień hitboksa broni (kapsuły). Można edytować w Blueprincie. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	float HitboxRadius;
 	
 private:
 	TArray<AActor*> Weapons;

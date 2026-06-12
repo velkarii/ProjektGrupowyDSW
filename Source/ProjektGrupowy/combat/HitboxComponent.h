@@ -19,6 +19,11 @@ public:
 	void StartDetection(USkeletalMeshComponent* MeshComp, AActor* Owner, TSubclassOf<UAttackType> AttackType);
 	void StopDetection();
 
+	UAttackType* GetCurrentAttack() const { return CurrentAttack; }
+
+private:
+	bool bNotifyActive = false;
+
 protected:
 	virtual void BeginPlay() override;
 

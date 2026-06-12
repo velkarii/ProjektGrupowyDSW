@@ -18,6 +18,12 @@ public:
 
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+protected:
+
+	/** Opcjonalny montaż animacji do odtworzenia. Jeśli nie ustawiony, użyje domyślnego z przeciwnika. */
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	class UAnimMontage* AttackMontage;
+
 private:
 
 	UFUNCTION()

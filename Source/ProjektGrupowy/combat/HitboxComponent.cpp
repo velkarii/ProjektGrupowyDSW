@@ -11,6 +11,7 @@ UHitboxComponent::UHitboxComponent()
 void UHitboxComponent::StartDetection(USkeletalMeshComponent* MeshComp, AActor* Owner, TSubclassOf<UAttackType> AttackType)
 {
 	HitActors.Empty();
+	bNotifyActive = true;
 
 	if (AttackType)
 	{
@@ -23,7 +24,18 @@ void UHitboxComponent::StartDetection(USkeletalMeshComponent* MeshComp, AActor* 
 
 void UHitboxComponent::StopDetection()
 {
+	bNotifyActive = false;
+	
+	// Atak może trwać dłużej niż sam Notify (np. SkyFallAttack).
+	// TickComponent zajmie się wyłączeniem ticka, gdy CurrentAttack->IsFinished() zwróci true.
+	if (CurrentAttack && !CurrentAttack->IsFinished())
+	{
+		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] HitboxComponent: NotifyEnd, but attack continues..."));
+		return;
+	}
+
 	SetComponentTickEnabled(false);
+
 	int i = 0;
 	for (auto HitActor : HitActors)
 	{
@@ -46,6 +58,17 @@ void UHitboxComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (CurrentAttack)
 	{
 		CurrentAttack->ExecuteAttack();
+
+		// If the notify has ended and the attack sequence is also finished, stop ticking
+		if (!bNotifyActive && CurrentAttack->IsFinished())
+		{
+			SetComponentTickEnabled(false);
+			CurrentAttack = nullptr;
+		}
+	}
+	else if (!bNotifyActive)
+	{
+		SetComponentTickEnabled(false);
 	}
 }
 

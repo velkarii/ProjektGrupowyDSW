@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "NiagaraSystem.h"
 #include "AttackType.generated.h"
 
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS(Abstract, Blueprintable, BlueprintType)
 class PROJEKTGRUPOWY_API UAttackType : public UObject
 {
 	GENERATED_BODY()
@@ -19,10 +20,22 @@ public:
 
 	virtual void ExecuteAttack() PURE_VIRTUAL(UAttackTypeBase::ExecuteAttack);
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	virtual bool IsFinished() const { return true; }
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	USkeletalMeshComponent* MeshComponent;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	AActor* Owner;
+
+	/** Opcjonalny montaż animacji do odtworzenia podczas ataku. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	class UAnimMontage* AttackMontage;
+
+	/** Opcjonalny efekt Niagara do zespawnowania na początku ataku. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	class UNiagaraSystem* StartVFX;
 
 	TSet<TObjectPtr<AActor>>* HitActors;
 };

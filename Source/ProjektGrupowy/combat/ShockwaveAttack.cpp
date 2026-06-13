@@ -145,7 +145,7 @@ void UShockwaveAttack::ExecuteAttack()
 								UGameplayStatics::ApplyDamage(Player, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
 							}
 							
-							GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, FString::Printf(TEXT("Shockwave hit: %s"), *HitActor->GetName()));
+							// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, FString::Printf(TEXT("Shockwave hit: %s"), *HitActor->GetName()));
 						}
 					}
 				}
@@ -160,11 +160,12 @@ void UShockwaveAttack::ExecuteAttack()
 						VFXScale,
 						true,
 						true,
-						ENCPoolMethod::AutoRelease,
+ 					ENCPoolMethod::AutoRelease,
 						true
 					);
 				}
 				
+				/*
 				DrawDebugBox(
 					GetWorld(),
 					BoxCenter,
@@ -176,6 +177,7 @@ void UShockwaveAttack::ExecuteAttack()
 					0,
 					2.0f
 				);
+				*/
 				
 				LastSpawnedBlockIndex = i; 
 			}

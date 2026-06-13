@@ -86,7 +86,7 @@ void UEnemyMeleeAttack::PerformSweep()
 				{
 					HitActors->Add(HitActor);
 					UGameplayStatics::ApplyDamage(Player, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
-					UE_LOG(LogTemp, Warning, TEXT("Enemy hit player for %f damage"), Damage);
+					// UE_LOG(LogTemp, Warning, TEXT("Enemy hit player for %f damage"), Damage);
 				}
 				
 				AEnemy* OtherEnemy = Cast<AEnemy>(HitActor);

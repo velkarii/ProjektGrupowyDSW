@@ -61,7 +61,7 @@ void UBTTask_SkyFallAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		// Jeśli atak się skończył lub w ogóle go nie ma (a powinien być)
 		if (!CurrentAttack || CurrentAttack->IsFinished())
 		{
-			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] BTTask_SkyFallAttack: Attack finished, finishing task."));
+			// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] BTTask_SkyFallAttack: Attack finished, finishing task."));
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
 	}

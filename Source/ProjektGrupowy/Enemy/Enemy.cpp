@@ -39,7 +39,7 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	CurrentHealth = FMath::Clamp(CurrentHealth - ActualDamage, 0.f, MaxHealth);
-	UE_LOG(LogTemp, Log, TEXT("Enemy took %f damage. Current Health: %f"), ActualDamage, CurrentHealth);
+	// UE_LOG(LogTemp, Log, TEXT("Enemy took %f damage. Current Health: %f"), ActualDamage, CurrentHealth);
 
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 
@@ -96,7 +96,7 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 {
 	if (!Target)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] TeleportToTarget: Target is NULL!"));
+		// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] TeleportToTarget: Target is NULL!"));
 		return;
 	}
 
@@ -118,8 +118,8 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportToTarget: Attempting teleport to %s (Target: %s, Forward: %s)"), 
-		*TeleportLocation.ToString(), *TargetLocation.ToString(), *TargetForward.ToString());
+	// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportToTarget: Attempting teleport to %s (Target: %s, Forward: %s)"), 
+	// 	*TeleportLocation.ToString(), *TargetLocation.ToString(), *TargetForward.ToString());
 
 	// Próbujemy teleportacji z bSweep = false, aby sprawdzić czy to kolizja blokuje.
 	// Wyrównujemy do podłoża biorąc pod uwagę skalę kapsuły.
@@ -130,7 +130,7 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 
 	if (bTeleported)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportToTarget: SUCCESS"));
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportToTarget: SUCCESS"));
 		if (bFaceTarget)
 		{
 			FVector LookAtDir = (TargetLocation - GetActorLocation());
@@ -143,7 +143,7 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportToTarget: FAILED to SetActorLocation"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportToTarget: FAILED to SetActorLocation"));
 	}
 }
 
@@ -165,7 +165,7 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 {
 	if (!Target)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Target is NULL!"));
+		// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Target is NULL!"));
 		return;
 	}
 
@@ -174,7 +174,7 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	if (!NavSys)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: NavSys is NULL!"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: NavSys is NULL!"));
 		return;
 	}
 
@@ -204,7 +204,7 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 
 	if (!bFoundValidLocation)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to find valid NavMesh location around target"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to find valid NavMesh location around target"));
 		return;
 	}
 	
@@ -212,14 +212,14 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 	float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	TeleportLocation.Z += CapsuleHalfHeight + 2.0f;
 
-	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Attempting teleport to %s (Target: %s)"), 
-		*TeleportLocation.ToString(), *TargetLocation.ToString());
+	// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Attempting teleport to %s (Target: %s)"), 
+	// 	*TeleportLocation.ToString(), *TargetLocation.ToString());
 
 	bool bTeleported = SetActorLocation(TeleportLocation, false, nullptr, ETeleportType::TeleportPhysics);
 
 	if (bTeleported)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: SUCCESS"));
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: SUCCESS"));
 		if (bFaceTarget)
 		{
 			FVector LookAtDir = (TargetLocation - GetActorLocation());
@@ -232,7 +232,7 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to SetActorLocation"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to SetActorLocation"));
 	}
 }
 

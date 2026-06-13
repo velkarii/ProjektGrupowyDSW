@@ -20,7 +20,7 @@ void UWeaponAttack::SetupWeapons()
 	// Sprawdź czy cokolwiek jest podpięte
 	if (Weapons.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: Owner has NO attached actors!"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: Owner has NO attached actors!"));
 		return;
 	}
 
@@ -28,14 +28,14 @@ void UWeaponAttack::SetupWeapons()
 	{
 		if (!Weapons[i]->ActorHasTag(TEXT("Weapon")))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Ignoring actor %s - missing 'Weapon' tag"), *Weapons[i]->GetName());
+			// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Ignoring actor %s - missing 'Weapon' tag"), *Weapons[i]->GetName());
 			Weapons.RemoveAt(i);
 		}
 	}
 
 	if (Weapons.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: No actors with 'Weapon' tag found!"));
+		// UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: No actors with 'Weapon' tag found!"));
 		return;
 	}
 
@@ -45,11 +45,11 @@ void UWeaponAttack::SetupWeapons()
 		if (Mesh)
 		{
 			WeaponsMeshes.Add(Mesh);
-			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Found mesh for weapon %s"), *Weapon->GetName());
+			// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Found mesh for weapon %s"), *Weapon->GetName());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Weapon %s has NO StaticMeshComponent!"), *Weapon->GetName());
+			// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Weapon %s has NO StaticMeshComponent!"), *Weapon->GetName());
 		}
 	}
 
@@ -57,7 +57,7 @@ void UWeaponAttack::SetupWeapons()
 	{
 		TArray<FName> Sockets = WeaponMesh->GetAllSocketNames();
 		WeaponsSockets.Add(Sockets);
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Weapon mesh has %d sockets"), Sockets.Num());
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Weapon mesh has %d sockets"), Sockets.Num());
 	}
 }
 
@@ -99,7 +99,7 @@ void UWeaponAttack::PerformSweep()
 					AActor* HitActor = Hit.GetActor();
 					if (!HitActor || HitActors->Contains(HitActor)) continue;
 
-					UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Detected hit on %s"), *HitActor->GetName());
+					// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Detected hit on %s"), *HitActor->GetName());
 
 					APlayerCharacter* Character = Cast<APlayerCharacter>(HitActor);
 					AEnemy* Enemy = Cast<AEnemy>(HitActor);
@@ -117,12 +117,12 @@ void UWeaponAttack::PerformSweep()
 						float Damage = BaseDamage;
 						if (AEnemy* Attacker = Cast<AEnemy>(Owner)) Damage = Attacker->AttackDamage;
 						UGameplayStatics::ApplyDamage(Enemy, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
-						UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Applied %f damage to %s"), Damage, *HitActor->GetName());
+						// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Applied %f damage to %s"), Damage, *HitActor->GetName());
 					}
 				}
 			}
 
-			DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, HitboxRadius, Rotation, FColor::Red, false, 0);
+			// DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, HitboxRadius, Rotation, FColor::Red, false, 0);
 		}
 	}
 }

@@ -30,7 +30,7 @@ void UHitboxComponent::StopDetection()
 	// TickComponent zajmie się wyłączeniem ticka, gdy CurrentAttack->IsFinished() zwróci true.
 	if (CurrentAttack && !CurrentAttack->IsFinished())
 	{
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] HitboxComponent: NotifyEnd, but attack continues..."));
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] HitboxComponent: NotifyEnd, but attack continues..."));
 		return;
 	}
 
@@ -42,7 +42,7 @@ void UHitboxComponent::StopDetection()
 		if (!HitActor)
 			continue;
 
-		GEngine->AddOnScreenDebugMessage(i++, 5.f, FColor::Red, FString::Printf(TEXT("Hit Actor: %s"), *HitActor->GetClass()->GetFName().ToString()));
+		// GEngine->AddOnScreenDebugMessage(i++, 5.f, FColor::Red, FString::Printf(TEXT("Hit Actor: %s"), *HitActor->GetClass()->GetFName().ToString()));
 	}
 }
 

@@ -37,7 +37,7 @@ EBTNodeResult::Type UBTTask_ResetToGround::ExecuteTask(UBehaviorTreeComponent& O
 		FRotator NewRotation = FRotator(0.f, CurrentRotation.Yaw, 0.f);
 		Character->SetActorRotation(NewRotation);
 		
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] ResetToGround: Actor %s snapped to ground and rotation reset"), *Character->GetName());
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] ResetToGround: Actor %s snapped to ground and rotation reset"), *Character->GetName());
 		
 		UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
 		if (MoveComp)
@@ -50,6 +50,6 @@ EBTNodeResult::Type UBTTask_ResetToGround::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Succeeded;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] ResetToGround: FAILED to find ground for %s"), *Character->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] ResetToGround: FAILED to find ground for %s"), *Character->GetName());
 	return EBTNodeResult::Failed;
 }

@@ -38,8 +38,8 @@ void USkyFallAttack::InitializeAttack(USkeletalMeshComponent* InMeshComp, AActor
 		{
 			if (ACharacter* OwnerChar = Cast<ACharacter>(Owner))
 			{
-				OwnerChar->GetCapsuleComponent()->IgnoreActorWhenMoving(Player, true);
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Ignoring Player collisions during flight"));
+				// OwnerChar->GetCapsuleComponent()->IgnoreActorWhenMoving(Player, true);
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Ignoring Player collisions during flight"));
 			}
 		}
 
@@ -50,7 +50,7 @@ void USkyFallAttack::InitializeAttack(USkeletalMeshComponent* InMeshComp, AActor
 			Char->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Initialized at %s"), *StartLocation.ToString());
+		// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Initialized at %s"), *StartLocation.ToString());
 	}
 }
 
@@ -68,7 +68,7 @@ void USkyFallAttack::ExecuteAttack()
 			if (GetWorld()->GetTimeSeconds() - WarningStartTime >= PreAttackDelay)
 			{
 				CurrentPhase = EAttackPhase::Rising;
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Warning phase finished, starting Rising"));
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Warning phase finished, starting Rising"));
 			}
 		}
 		break;
@@ -84,7 +84,7 @@ void USkyFallAttack::ExecuteAttack()
 				CurrentPhase = EAttackPhase::Waiting;
 				HoverStartTime = GetWorld()->GetTimeSeconds();
 
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hovering for %f seconds"), HoverDuration);
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hovering for %f seconds"), HoverDuration);
 			}
 		}
 		break;
@@ -92,7 +92,7 @@ void USkyFallAttack::ExecuteAttack()
 	case EAttackPhase::Waiting:
 		{
 			// Rysuj sferę podglądu podczas oczekiwania
-			DrawDebugSphere(GetWorld(), Owner->GetActorLocation(), HitboxRadius, 12, FColor::Yellow, false, 0.f);
+			// DrawDebugSphere(GetWorld(), Owner->GetActorLocation(), HitboxRadius, 12, FColor::Yellow, false, 0.f);
 
 			if (GetWorld()->GetTimeSeconds() - HoverStartTime >= HoverDuration)
 			{
@@ -111,7 +111,7 @@ void USkyFallAttack::ExecuteAttack()
 					TargetImpactLocation = StartLocation;
 				}
 				
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Falling towards %s"), *TargetImpactLocation.ToString());
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Falling towards %s"), *TargetImpactLocation.ToString());
 			}
 		}
 		break;
@@ -125,7 +125,7 @@ void USkyFallAttack::ExecuteAttack()
 			FVector MoveStep = Direction * FallSpeed * DeltaTime;
 			
 			// Rysuj sferę podglądu ataku podczas spadania
-			DrawDebugSphere(GetWorld(), CurrentLoc, HitboxRadius, 12, FColor::Yellow, false, 0.f);
+			// DrawDebugSphere(GetWorld(), CurrentLoc, HitboxRadius, 12, FColor::Yellow, false, 0.f);
 
 			FHitResult Hit;
 			// Przesuń aktora. Używamy bSweep=true, ale chcemy ignorować gracza podczas tego ruchu,
@@ -142,7 +142,7 @@ void USkyFallAttack::ExecuteAttack()
 			{
 				if (Hit.bBlockingHit)
 				{
-					UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hit something: %s"), Hit.GetActor() ? *Hit.GetActor()->GetName() : TEXT("NULL"));
+					// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hit something: %s"), Hit.GetActor() ? *Hit.GetActor()->GetName() : TEXT("NULL"));
 					Owner->SetActorLocation(Hit.Location, false);
 				}
 				else
@@ -175,11 +175,11 @@ void USkyFallAttack::ExecuteAttack()
 				if (ACharacter* OwnerChar = Cast<ACharacter>(Owner))
 				{
 					OwnerChar->GetCapsuleComponent()->IgnoreActorWhenMoving(Player, false);
-					UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Restored Player collisions after delay"));
+					// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Restored Player collisions after delay"));
 				}
 			}
 
-			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Phase IMPACTED -> FINISHED"));
+			// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Phase IMPACTED -> FINISHED"));
 			CurrentPhase = EAttackPhase::Finished;
 		}
 		break;
@@ -219,7 +219,7 @@ void USkyFallAttack::PerformImpact()
 			FRotator NewRotation = FRotator(0.f, CurrentRotation.Yaw, 0.f);
 			Char->SetActorRotation(NewRotation);
 
-			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Snapped to ground and rotation reset"));
+			// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Snapped to ground and rotation reset"));
 		}
 
 		// Zatrzymaj montaż ataku (jeśli istnieje)
@@ -228,7 +228,7 @@ void USkyFallAttack::PerformImpact()
 			if (AnimInstance->IsAnyMontagePlaying())
 			{
 				AnimInstance->Montage_Stop(0.1f, AttackMontage);
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Montage Stopped"));
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Montage Stopped"));
 			}
 		}
 	}
@@ -254,30 +254,30 @@ void USkyFallAttack::PerformImpact()
 				
 				UGameplayStatics::ApplyDamage(HitActor, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
 				
-				// Odrzut (Knockback) dla gracza
+				// Efekt Niagara dla każdego trafionego aktora
+				if (ImpactVFX)
+				{
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactVFX, HitActor->GetActorLocation(), FRotator::ZeroRotator, FVector(1.f));
+				}
+				
+   	// Odrzut (Knockback) dla gracza
 				if (APlayerCharacter* Player = Cast<APlayerCharacter>(HitActor))
 				{
 					FVector KnockbackDir = (Player->GetActorLocation() - ImpactLoc).GetSafeNormal2D();
 					if (KnockbackDir.IsNearlyZero()) KnockbackDir = Player->GetActorForwardVector() * -1.f;
 					
 					Player->LaunchCharacter(KnockbackDir * KnockbackStrength + FVector(0,0, 300.f), true, true);
-					UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Knockback applied to Player"));
+					// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Knockback applied to Player"));
 				}
 
-				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hit %s"), *HitActor->GetName());
+				// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Hit %s"), *HitActor->GetName());
 			}
 		}
 	}
 
-	// Efekty wizualne
-	if (ImpactVFX)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactVFX, ImpactLoc, FRotator::ZeroRotator, FVector(2.f)); // Większa skala efektu
-	}
-
 	// DrawDebugSphere usunięty lub ustawiony na bardzo krótki czas, aby "zniknął" zaraz po uderzeniu
-	DrawDebugSphere(GetWorld(), ImpactLoc, HitboxRadius, 12, FColor::Red, false, 0.05f);
-	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: IMPACT at %s"), *ImpactLoc.ToString());
+	// DrawDebugSphere(GetWorld(), ImpactLoc, HitboxRadius, 12, FColor::Red, false, 0.05f);
+	// UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: IMPACT at %s"), *ImpactLoc.ToString());
 }
 
 bool USkyFallAttack::IsFinished() const

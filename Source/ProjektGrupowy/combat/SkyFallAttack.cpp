@@ -12,7 +12,7 @@
 
 USkyFallAttack::USkyFallAttack()
 {
-	CurrentPhase = EAttackPhase::Rising;
+	CurrentPhase = EAttackPhase::Warning;
 	CurrentHeightOffset = 0.f;
 }
 
@@ -23,8 +23,14 @@ void USkyFallAttack::InitializeAttack(USkeletalMeshComponent* InMeshComp, AActor
 	if (Owner)
 	{
 		StartLocation = Owner->GetActorLocation();
-		CurrentPhase = EAttackPhase::Rising;
+		CurrentPhase = EAttackPhase::Warning;
+		WarningStartTime = GetWorld()->GetTimeSeconds();
 		CurrentHeightOffset = 0.f;
+
+		if (PreAttackVFX)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PreAttackVFX, StartLocation, Owner->GetActorRotation());
+		}
 
 		// Wyłącz kolizję z graczem na czas lotu
 		APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -57,6 +63,16 @@ void USkyFallAttack::ExecuteAttack()
 
 	switch (CurrentPhase)
 	{
+	case EAttackPhase::Warning:
+		{
+			if (GetWorld()->GetTimeSeconds() - WarningStartTime >= PreAttackDelay)
+			{
+				CurrentPhase = EAttackPhase::Rising;
+				UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Warning phase finished, starting Rising"));
+			}
+		}
+		break;
+
 	case EAttackPhase::Rising:
 		{
 			CurrentHeightOffset += RiseSpeed * DeltaTime;
@@ -137,9 +153,14 @@ void USkyFallAttack::ExecuteAttack()
 			}
 			else
 			{
-				// Kontynuuj obrót w stronę uderzenia
-				FRotator NewRot = Direction.Rotation();
-				Owner->SetActorRotation(NewRot);
+				// Kontynuuj obrót w stronę uderzenia - TYLKO YAW, aby uniknąć przechylania bossa w dół
+				if (!Direction.IsNearlyZero())
+				{
+					FRotator NewRot = Direction.Rotation();
+					NewRot.Pitch = 0.f;
+					NewRot.Roll = 0.f;
+					Owner->SetActorRotation(NewRot);
+				}
 			}
 		}
 		break;
@@ -192,7 +213,13 @@ void USkyFallAttack::PerformImpact()
 			float CapsuleHalfHeight = Char->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 			// Ustawiamy lekko powyżej (2 jednostki), aby CharacterMovement nie uznał, że penetrujemy ziemię
 			Char->SetActorLocation(GroundHit.Location + FVector(0, 0, CapsuleHalfHeight + 2.0f), false);
-			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Snapped to ground at %s"), *GroundHit.Location.ToString());
+
+			// Reset rotation - ensure Pitch and Roll are zero, keeping only Yaw
+			FRotator CurrentRotation = Char->GetActorRotation();
+			FRotator NewRotation = FRotator(0.f, CurrentRotation.Yaw, 0.f);
+			Char->SetActorRotation(NewRotation);
+
+			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] SkyFallAttack: Snapped to ground and rotation reset"));
 		}
 
 		// Zatrzymaj montaż ataku (jeśli istnieje)

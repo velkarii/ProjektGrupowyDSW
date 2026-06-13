@@ -26,11 +26,11 @@ public:
 
 	/** Wysokość, na jaką wznosi się przeciwnik. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall")
-	float RiseHeight = 1000.f;
+	float RiseHeight = 1500.f;
 
 	/** Prędkość wznoszenia. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall")
-	float RiseSpeed = 1000.f;
+	float RiseSpeed = 2000.f;
 
 	/** Prędkość opadania. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall")
@@ -52,6 +52,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall|Visuals")
 	TObjectPtr<UNiagaraSystem> ImpactVFX;
 
+	/** System cząsteczek przed startem ataku. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall|Visuals")
+	TObjectPtr<UNiagaraSystem> PreAttackVFX;
+
+	/** Opóźnienie przed wzniesieniem się. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall")
+	float PreAttackDelay = 1.0f;
+
 	/** Siła odrzutu gracza przy uderzeniu. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sky Fall")
 	float KnockbackStrength = 1500.f;
@@ -67,8 +75,10 @@ public:
 protected:
 	float ImpactTime;
 	float HoverStartTime;
+	float WarningStartTime;
 	enum class EAttackPhase : uint8
 	{
+		Warning,
 		Rising,
 		Waiting,
 		Falling,

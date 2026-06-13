@@ -23,5 +23,5 @@ void UAnimNotify_TeleportAwayFromPlayer::Notify(USkeletalMeshComponent* MeshComp
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(Enemy->GetWorld(), TeleportVFX, Enemy->GetActorLocation(), Enemy->GetActorRotation());
 	}
 
-	Enemy->TeleportAwayFromTargetDelayed(Player, MinDistance, MaxDistance, bFacePlayer, TeleportDelay);
+	Enemy->TeleportAwayFromTarget(Player, MinDistance, MaxDistance, bFacePlayer);
 }

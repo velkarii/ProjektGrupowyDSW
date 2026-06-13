@@ -1,5 +1,7 @@
 #include "Enemy/Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -75,14 +77,27 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 	FVector TargetForward = Target->GetActorForwardVector();
 	
 	// Teleportacja przed gracza: TargetLocation + (TargetForward * Distance)
-	FVector TeleportLocation = TargetLocation + (TargetForward * Distance);
+	FVector CandidateLocation = TargetLocation + (TargetForward * Distance);
 	
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	FVector TeleportLocation = CandidateLocation;
+
+	if (NavSys)
+	{
+		FNavLocation NavLocation;
+		if (NavSys->ProjectPointToNavigation(CandidateLocation, NavLocation, FVector(200.f, 200.f, 500.f)))
+		{
+			TeleportLocation = NavLocation.Location;
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportToTarget: Attempting teleport to %s (Target: %s, Forward: %s)"), 
 		*TeleportLocation.ToString(), *TargetLocation.ToString(), *TargetForward.ToString());
 
 	// Próbujemy teleportacji z bSweep = false, aby sprawdzić czy to kolizja blokuje.
-	// Jeśli chcemy uniknąć blokowania przez podłogę, warto dodać lekki offset w górę.
-	TeleportLocation.Z += 50.f; 
+	// Wyrównujemy do podłoża biorąc pod uwagę skalę kapsuły.
+	float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	TeleportLocation.Z += CapsuleHalfHeight + 2.0f; 
 
 	bool bTeleported = SetActorLocation(TeleportLocation, false, nullptr, ETeleportType::TeleportPhysics);
 
@@ -128,28 +143,49 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 	}
 
 	FVector TargetLocation = Target->GetActorLocation();
-	FVector EnemyLocation = GetActorLocation();
 	
-	FVector DirectionAway = (EnemyLocation - TargetLocation);
-	DirectionAway.Z = 0;
-	
-	if (DirectionAway.IsNearlyZero())
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	if (!NavSys)
 	{
-		// Jeśli stoimy w tym samym miejscu, teleportujemy się w losowym kierunku
-		DirectionAway = FVector(FMath::RandRange(-1.f, 1.f), FMath::RandRange(-1.f, 1.f), 0).GetSafeNormal();
-	}
-	else
-	{
-		DirectionAway.Normalize();
+		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: NavSys is NULL!"));
+		return;
 	}
 
-	float RandomDistance = FMath::RandRange(MinDistance, MaxDistance);
-	FVector TeleportLocation = TargetLocation + (DirectionAway * RandomDistance);
-	
-	// Podniesienie lekko w górę, aby uniknąć problemów z podłożem
-	TeleportLocation.Z += 50.f;
+	FVector TeleportLocation;
+	bool bFoundValidLocation = false;
 
-	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Attempting teleport away to %s (Target: %s)"), 
+	// Próbujemy znaleźć losowy punkt na NavMesh w pobliżu celu w zadanym zakresie dystansu.
+	// GetRandomReachablePointInRadius może być zbyt restrykcyjne (wymaga ścieżki).
+	// Użyjemy losowania kąta i dystansu, a potem rzutowania na NavMesh.
+	
+	for (int32 i = 0; i < 10; ++i)
+	{
+		float RandomAngle = FMath::RandRange(0.f, 360.f);
+		float RandomDistance = FMath::RandRange(MinDistance, MaxDistance);
+		
+		FVector Offset = FVector(FMath::Cos(FMath::DegreesToRadians(RandomAngle)), FMath::Sin(FMath::DegreesToRadians(RandomAngle)), 0.f) * RandomDistance;
+		FVector CandidateLocation = TargetLocation + Offset;
+
+		FNavLocation NavLocation;
+		if (NavSys->ProjectPointToNavigation(CandidateLocation, NavLocation, FVector(200.f, 200.f, 500.f)))
+		{
+			TeleportLocation = NavLocation.Location;
+			bFoundValidLocation = true;
+			break;
+		}
+	}
+
+	if (!bFoundValidLocation)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to find valid NavMesh location around target"));
+		return;
+	}
+	
+	// Podniesienie w górę biorąc pod uwagę skalę kapsuły, aby uniknąć problemów z podłożem
+	float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	TeleportLocation.Z += CapsuleHalfHeight + 2.0f;
+
+	UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: Attempting teleport to %s (Target: %s)"), 
 		*TeleportLocation.ToString(), *TargetLocation.ToString());
 
 	bool bTeleported = SetActorLocation(TeleportLocation, false, nullptr, ETeleportType::TeleportPhysics);

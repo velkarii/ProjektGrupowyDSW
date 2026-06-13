@@ -23,6 +23,8 @@ APlayerCharacter::APlayerCharacter()
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = false;
 
+    // Ustawienie skali gracza na 1.0
+    SetActorScale3D(FVector(1.0f));
 }
 
 void APlayerCharacter::BeginPlay()

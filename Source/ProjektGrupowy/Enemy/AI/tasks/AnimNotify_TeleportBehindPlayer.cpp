@@ -23,5 +23,5 @@ void UAnimNotify_TeleportToPlayer::Notify(USkeletalMeshComponent* MeshComp, UAni
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(Enemy->GetWorld(), TeleportVFX, Enemy->GetActorLocation(), Enemy->GetActorRotation());
 	}
 
-	Enemy->TeleportToTargetDelayed(Player, Distance, bFacePlayer, TeleportDelay);
+	Enemy->TeleportToTarget(Player, Distance, bFacePlayer);
 }

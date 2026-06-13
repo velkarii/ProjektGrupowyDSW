@@ -28,7 +28,7 @@ EBTNodeResult::Type UBTTask_TeleportAwayFromPlayer::ExecuteTask(UBehaviorTreeCom
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(Enemy->GetWorld(), TeleportVFX, Enemy->GetActorLocation(), Enemy->GetActorRotation());
 		}
-		Enemy->TeleportAwayFromTargetDelayed(Player, MinDistance, MaxDistance, bFacePlayer, TeleportDelay);
+		Enemy->TeleportAwayFromTarget(Player, MinDistance, MaxDistance, bFacePlayer);
 	}
 
 	return EBTNodeResult::Succeeded;

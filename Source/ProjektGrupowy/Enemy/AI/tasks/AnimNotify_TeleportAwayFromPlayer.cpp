@@ -4,6 +4,7 @@
 #include "Enemy/Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/PlayerCharacter.h"
+#include "NiagaraFunctionLibrary.h"
 
 void UAnimNotify_TeleportAwayFromPlayer::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -17,5 +18,10 @@ void UAnimNotify_TeleportAwayFromPlayer::Notify(USkeletalMeshComponent* MeshComp
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(Enemy->GetWorld(), 0));
 	if (!Player) return;
 
-	Enemy->TeleportAwayFromTarget(Player, MinDistance, MaxDistance, bFacePlayer);
+	if (TeleportVFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(Enemy->GetWorld(), TeleportVFX, Enemy->GetActorLocation(), Enemy->GetActorRotation());
+	}
+
+	Enemy->TeleportAwayFromTargetDelayed(Player, MinDistance, MaxDistance, bFacePlayer, TeleportDelay);
 }

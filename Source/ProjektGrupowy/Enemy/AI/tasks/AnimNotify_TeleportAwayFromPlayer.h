@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "NiagaraSystem.h"
 #include "AnimNotify_TeleportAwayFromPlayer.generated.h"
 
 /**
@@ -29,4 +30,12 @@ protected:
 	/** Czy obrócić się w stronę gracza? */
 	UPROPERTY(EditAnywhere, Category = "Teleport")
 	bool bFacePlayer = true;
+
+	/** Opóźnienie teleportacji po zespawnowaniu efektu. */
+	UPROPERTY(EditAnywhere, Category = "Teleport")
+	float TeleportDelay = 1.0f;
+
+	/** Efekt Niagara spawnowany przed teleportacją. */
+	UPROPERTY(EditAnywhere, Category = "Teleport")
+	class UNiagaraSystem* TeleportVFX;
 };

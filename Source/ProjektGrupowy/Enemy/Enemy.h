@@ -29,6 +29,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void TeleportAwayFromTarget(AActor* Target, float MinDistance, float MaxDistance, bool bFaceTarget);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void TeleportToTargetDelayed(AActor* Target, float Distance, bool bFaceTarget, float Delay);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void TeleportAwayFromTargetDelayed(AActor* Target, float MinDistance, float MaxDistance, bool bFaceTarget, float Delay);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Settings")
 	EEnemyType EnemyType = EEnemyType::Minion;

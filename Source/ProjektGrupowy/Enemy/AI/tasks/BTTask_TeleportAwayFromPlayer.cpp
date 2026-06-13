@@ -6,6 +6,7 @@
 #include "Player/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimInstance.h"
+#include "NiagaraFunctionLibrary.h"
 
 UBTTask_TeleportAwayFromPlayer::UBTTask_TeleportAwayFromPlayer()
 {
@@ -23,7 +24,11 @@ EBTNodeResult::Type UBTTask_TeleportAwayFromPlayer::ExecuteTask(UBehaviorTreeCom
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(Enemy->GetWorld(), 0));
 	if (Player)
 	{
-		Enemy->TeleportAwayFromTarget(Player, MinDistance, MaxDistance, bFacePlayer);
+		if (TeleportVFX)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(Enemy->GetWorld(), TeleportVFX, Enemy->GetActorLocation(), Enemy->GetActorRotation());
+		}
+		Enemy->TeleportAwayFromTargetDelayed(Player, MinDistance, MaxDistance, bFacePlayer, TeleportDelay);
 	}
 
 	return EBTNodeResult::Succeeded;

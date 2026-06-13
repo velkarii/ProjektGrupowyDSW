@@ -105,6 +105,20 @@ void AEnemy::TeleportToTarget(AActor* Target, float Distance, bool bFaceTarget)
 	}
 }
 
+void AEnemy::TeleportToTargetDelayed(AActor* Target, float Distance, bool bFaceTarget, float Delay)
+{
+	if (Delay <= 0.f)
+	{
+		TeleportToTarget(Target, Distance, bFaceTarget);
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDel;
+	TimerDel.BindUObject(this, &AEnemy::TeleportToTarget, Target, Distance, bFaceTarget);
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, Delay, false);
+}
+
 void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float MaxDistance, bool bFaceTarget)
 {
 	if (!Target)
@@ -157,5 +171,19 @@ void AEnemy::TeleportAwayFromTarget(AActor* Target, float MinDistance, float Max
 	{
 		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] TeleportAwayFromTarget: FAILED to SetActorLocation"));
 	}
+}
+
+void AEnemy::TeleportAwayFromTargetDelayed(AActor* Target, float MinDistance, float MaxDistance, bool bFaceTarget, float Delay)
+{
+	if (Delay <= 0.f)
+	{
+		TeleportAwayFromTarget(Target, MinDistance, MaxDistance, bFaceTarget);
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDel;
+	TimerDel.BindUObject(this, &AEnemy::TeleportAwayFromTarget, Target, MinDistance, MaxDistance, bFaceTarget);
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, Delay, false);
 }
 

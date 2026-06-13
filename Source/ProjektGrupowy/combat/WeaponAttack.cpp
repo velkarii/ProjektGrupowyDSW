@@ -4,6 +4,7 @@
 #include "combat/WeaponAttack.h"
 #include "Player/PlayerCharacter.h"
 #include "Enemy/Enemy.h"
+#include "Kismet/GameplayStatics.h"
 
 UWeaponAttack::UWeaponAttack()
 {
@@ -69,7 +70,15 @@ void UWeaponAttack::PerformSweep()
 				if (Character)
 				{
 					HitActors->Add(HitActor);
-					// Character->TakeDamage(...) - jeśli gracz ma system obrażeń
+					
+					float Damage = 10.f;
+					if (AEnemy* Attacker = Cast<AEnemy>(Owner))
+					{
+						Damage = Attacker->AttackDamage;
+					}
+					
+					UGameplayStatics::ApplyDamage(Character, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
+					UE_LOG(LogTemp, Warning, TEXT("Weapon hit player for %f damage"), Damage);
 				}
 				else if (Enemy)
 				{

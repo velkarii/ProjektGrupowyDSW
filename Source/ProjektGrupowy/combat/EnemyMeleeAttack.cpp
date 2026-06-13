@@ -5,6 +5,7 @@
 #include "Player/PlayerCharacter.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 void UEnemyMeleeAttack::ExecuteAttack()
 {
@@ -84,8 +85,7 @@ void UEnemyMeleeAttack::PerformSweep()
 				if (Player)
 				{
 					HitActors->Add(HitActor);
-					// Player->TakeDamageAmount(Damage); // Zakładając, że gracz ma podobną metodę
-					// Tymczasowo logowanie
+					UGameplayStatics::ApplyDamage(Player, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
 					UE_LOG(LogTemp, Warning, TEXT("Enemy hit player for %f damage"), Damage);
 				}
 				

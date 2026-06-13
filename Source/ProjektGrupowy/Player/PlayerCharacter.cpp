@@ -32,6 +32,22 @@ void APlayerCharacter::BeginPlay()
     Super::BeginPlay();
 }
 
+void APlayerCharacter::SetInvulnerable(bool bEnabled)
+{
+	bIsInvulnerable = bEnabled;
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (bIsInvulnerable)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player is invulnerable! Damage ignored."));
+		return 0.f;
+	}
+
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);

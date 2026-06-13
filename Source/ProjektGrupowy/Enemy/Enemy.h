@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/DamageEvents.h"
 #include "Enemy.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, NewHealth, float, MaxHealth);
 
 UENUM(BlueprintType)
 enum class EEnemyType : uint8
@@ -74,7 +77,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	void TakeDamageAmount(float DamageAmount);
 
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void ApplyNormalDamage(float DamageAmount);
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Stats")
 	void OnDeath();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Stats")
+	FOnHealthChangedSignature OnHealthChanged;
 
 };

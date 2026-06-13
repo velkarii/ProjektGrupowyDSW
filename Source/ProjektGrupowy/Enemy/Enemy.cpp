@@ -20,6 +20,9 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
+
+	// Rozsyłamy początkowe HP, aby pasek w UI nie startował od 0
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -28,12 +31,29 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::TakeDamageAmount(float DamageAmount)
 {
-	CurrentHealth = FMath::Clamp(CurrentHealth - DamageAmount, 0.f, MaxHealth);
-	
+	TakeDamage(DamageAmount, FDamageEvent(), nullptr, nullptr);
+}
+
+float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	CurrentHealth = FMath::Clamp(CurrentHealth - ActualDamage, 0.f, MaxHealth);
+	UE_LOG(LogTemp, Log, TEXT("Enemy took %f damage. Current Health: %f"), ActualDamage, CurrentHealth);
+
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+
 	if (CurrentHealth <= 0.f)
 	{
 		OnDeath();
 	}
+
+	return ActualDamage;
+}
+
+void AEnemy::ApplyNormalDamage(float DamageAmount)
+{
+	TakeDamage(DamageAmount, FDamageEvent(), nullptr, nullptr);
 }
 
 void AEnemy::OnDeath_Implementation()

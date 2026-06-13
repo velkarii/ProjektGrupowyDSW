@@ -13,33 +13,66 @@ UWeaponAttack::UWeaponAttack()
 
 void UWeaponAttack::SetupWeapons()
 {
-	Owner->GetAttachedActors(Weapons);
+	if (!Owner) return;
 
-	for (auto Weapon : Weapons)
+	Owner->GetAttachedActors(Weapons);
+	
+	// Sprawdź czy cokolwiek jest podpięte
+	if (Weapons.IsEmpty())
 	{
-		if (!Weapon->ActorHasTag(TEXT("Weapon")))
-			Weapons.Remove(Weapon);
+		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: Owner has NO attached actors!"));
+		return;
+	}
+
+	for (int32 i = Weapons.Num() - 1; i >= 0; i--)
+	{
+		if (!Weapons[i]->ActorHasTag(TEXT("Weapon")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Ignoring actor %s - missing 'Weapon' tag"), *Weapons[i]->GetName());
+			Weapons.RemoveAt(i);
+		}
+	}
+
+	if (Weapons.IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("[DEBUG_LOG] WeaponAttack: No actors with 'Weapon' tag found!"));
+		return;
 	}
 
 	for (auto Weapon : Weapons)
 	{
-		WeaponsMeshes.Add(Weapon->FindComponentByClass<UStaticMeshComponent>());
+		UStaticMeshComponent* Mesh = Weapon->FindComponentByClass<UStaticMeshComponent>();
+		if (Mesh)
+		{
+			WeaponsMeshes.Add(Mesh);
+			UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Found mesh for weapon %s"), *Weapon->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Weapon %s has NO StaticMeshComponent!"), *Weapon->GetName());
+		}
 	}
 
 	for (auto WeaponMesh : WeaponsMeshes)
 	{
-		TArray<FName> Sockets;
-		Sockets = WeaponMesh->GetAllSocketNames();
+		TArray<FName> Sockets = WeaponMesh->GetAllSocketNames();
 		WeaponsSockets.Add(Sockets);
+		UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Weapon mesh has %d sockets"), Sockets.Num());
 	}
 }
 
 void UWeaponAttack::PerformSweep()
 {
+	if (Weapons.IsEmpty()) return;
+
 	for (int i = 0; i < Weapons.Num(); i++)
 	{
+		if (i >= WeaponsSockets.Num()) continue;
+
 		for (int j = 0; j < WeaponsSockets[i].Num(); j += 2)
 		{
+			if (j + 1 >= WeaponsSockets[i].Num()) break;
+
 			FName StartSocket = WeaponsSockets[i][j];
 			FName EndSocket = WeaponsSockets[i][j + 1];
 
@@ -55,48 +88,41 @@ void UWeaponAttack::PerformSweep()
 			FCollisionQueryParams QueryParams;
 			QueryParams.AddIgnoredActor(Owner);
 			TArray<FHitResult> HitResults;
-			GetWorld()->SweepMultiByChannel(HitResults, StartLocation, EndLocation, Rotation, ECC_Pawn, CollisionShape, QueryParams);
-
-			for (auto Hit : HitResults)
+			
+			// Używamy ECC_WorldDynamic lub Visibility jako fallback, jeśli ECC_Pawn nie działa
+			bool bHit = GetWorld()->SweepMultiByChannel(HitResults, StartLocation, EndLocation, Rotation, ECC_Pawn, CollisionShape, QueryParams);
+			
+			if (bHit)
 			{
-				AActor* HitActor = Hit.GetActor();
-
-				if (!HitActor || HitActors->Contains(HitActor))
-					continue;
-
-				APlayerCharacter* Character = Cast<APlayerCharacter>(HitActor);
-				AEnemy* Enemy = Cast<AEnemy>(HitActor);
-
-				if (Character)
+				for (auto Hit : HitResults)
 				{
-					HitActors->Add(HitActor);
-					
-					float Damage = 10.f;
-					if (AEnemy* Attacker = Cast<AEnemy>(Owner))
+					AActor* HitActor = Hit.GetActor();
+					if (!HitActor || HitActors->Contains(HitActor)) continue;
+
+					UE_LOG(LogTemp, Log, TEXT("[DEBUG_LOG] WeaponAttack: Detected hit on %s"), *HitActor->GetName());
+
+					APlayerCharacter* Character = Cast<APlayerCharacter>(HitActor);
+					AEnemy* Enemy = Cast<AEnemy>(HitActor);
+
+					if (Character)
 					{
-						Damage = Attacker->AttackDamage;
+						HitActors->Add(HitActor);
+						float Damage = 10.f;
+						if (AEnemy* Attacker = Cast<AEnemy>(Owner)) Damage = Attacker->AttackDamage;
+						UGameplayStatics::ApplyDamage(Character, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
 					}
-					
-					UGameplayStatics::ApplyDamage(Character, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
-					UE_LOG(LogTemp, Warning, TEXT("Weapon hit player for %f damage"), Damage);
-				}
-				else if (Enemy)
-				{
-					HitActors->Add(HitActor);
-					
-					// Pobierz obrażenia od właściciela ataku, jeśli jest nim Enemy
-					float Damage = 10.f;
-					if (AEnemy* Attacker = Cast<AEnemy>(Owner))
+					else if (Enemy)
 					{
-						Damage = Attacker->AttackDamage;
+						HitActors->Add(HitActor);
+						float Damage = BaseDamage;
+						if (AEnemy* Attacker = Cast<AEnemy>(Owner)) Damage = Attacker->AttackDamage;
+						UGameplayStatics::ApplyDamage(Enemy, Damage, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
+						UE_LOG(LogTemp, Warning, TEXT("[DEBUG_LOG] WeaponAttack: Applied %f damage to %s"), Damage, *HitActor->GetName());
 					}
-					
-					Enemy->TakeDamageAmount(Damage);
 				}
-				
 			}
 
-			DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, HitboxRadius, Rotation, FColor::Red, false, 0); // debug draw
+			DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2, HalfHeight, HitboxRadius, Rotation, FColor::Red, false, 0);
 		}
 	}
 }

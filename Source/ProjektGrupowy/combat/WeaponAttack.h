@@ -24,6 +24,10 @@ protected:
 	/** Promień hitboksa broni (kapsuły). Można edytować w Blueprincie. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float HitboxRadius;
+
+	/** Domyślne obrażenia zadawane przez ten atak (np. przez gracza). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	float BaseDamage = 20.0f;
 	
 private:
 	TArray<AActor*> Weapons;

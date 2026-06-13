@@ -83,6 +83,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Stats")
 	void OnDeath();
 
+	/** Ręczne wymuszenie śmierci przeciwnika (np. dla celów debugowania lub eventów). */
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void Die();
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(BlueprintAssignable, Category = "Stats")

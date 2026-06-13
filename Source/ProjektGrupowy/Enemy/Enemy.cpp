@@ -56,6 +56,13 @@ void AEnemy::ApplyNormalDamage(float DamageAmount)
 	TakeDamage(DamageAmount, FDamageEvent(), nullptr, nullptr);
 }
 
+void AEnemy::Die()
+{
+	CurrentHealth = 0.f;
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	OnDeath();
+}
+
 void AEnemy::OnDeath_Implementation()
 {
 	// Logika śmierci (np. animacja ragdoll, usunięcie aktora)

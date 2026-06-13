@@ -10,6 +10,13 @@
 class UNiagaraSystem;
 
 
+enum class EShockwavePhase : uint8
+{
+	Warning,
+	Active,
+	Finished
+};
+
 UCLASS(Blueprintable, BlueprintType)
 class PROJEKTGRUPOWY_API UShockwaveAttack : public UAttackType
 {
@@ -38,8 +45,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shockwave|Visuals")
 	FVector VFXScale = FVector(1.f, 1.f, 1.f);
 
+	/** Efekt Niagara spawnowany jako ostrzeżenie przed atakiem. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shockwave|Visuals")
+	TObjectPtr<UNiagaraSystem> PreAttackVFX;
+
+	/** Opóźnienie przed właściwym atakiem (faza ostrzeżenia). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shockwave")
+	float PreAttackDelay = 1.0f;
+
 protected:
 	float CurrentTime;
+	float WarningStartTime;
+	EShockwavePhase CurrentPhase;
 	
 	int32 LastSpawnedBlockIndex;
 	
